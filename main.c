@@ -1,10 +1,21 @@
-#include "elev.h"
 #include <stdio.h>
+
+#include "elev.h"
 #include "IOModule.h"
-#include "IOModule.c"
+#include "Queue.h"
+#include "Timer.h"
+#include "BUTTONS.h"
+
+
+int BUTTONS[10] = {0};
 
 
 int main() {
+	
+		clearQueue();
+		
+	
+	
     // Initialize hardware
     if (!elev_init()) {
         printf("Unable to initialize elevator hardware!\n");
@@ -16,11 +27,21 @@ int main() {
     elev_set_motor_direction(DIRN_UP);
 
     while (1) {
+    
+    
+    
+    	pollAndUpdateButtons();
+    	
     	pollAndSetFloor();
         // Change direction when we reach top/bottom floor
         if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
-
-            elev_set_motor_direction(DIRN_DOWN);
+			startTimer();
+			while(!timeOut()){
+				elev_set_motor_direction(DIRN_STOP);
+			}
+			while(elev_get_floor_sensor_signal() == N_FLOORS - 1){
+				elev_set_motor_direction(DIRN_DOWN);
+				}
         } else if (elev_get_floor_sensor_signal() == 0) {
             elev_set_motor_direction(DIRN_UP);
         }
