@@ -1,13 +1,12 @@
 #include "io.h"
+#include "BUTTONS.h"
+
+static struct order queue[10]; //kun 10 knapper, worst case scenario 10 aktive ordre.
 
 
 
-static int queue[10]; //kun 10 knapper, worst case scenario 10 aktive ordre.
-
-
-
-void updateQueue();
+void updateQueue(struct order *currentOrder);
 void clearQueue();
-int fetchOrder();
+void fetchOrder(struct order *currentOrder);
 
  	

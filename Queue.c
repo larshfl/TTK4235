@@ -1,41 +1,47 @@
 #include "Queue.h"
-#include "BUTTONS.h"
 
 void clearQueue(){
-	
-	for(int i = 0; i < 10; i++){
-		queue[i] = 0;
-		}
+	for (int i = 0; i < 10; i++){
+		queue[i].isEnabled = 0;
+	}
 }
 
 
-int fetchOrder(){ 
+void fetchOrder(struct order *currentOrder){
+	currentOrder->direction = queue[0].direction;
+	currentOrder->floor = queue[0].floor;
+	currentOrder->isEnabled = queue[0].isEnabled;
+	for (int i = 0; i < 9; i++){
+		queue[i].direction = queue[i+1].direction;
+		queue[i].floor = queue[i+1].floor;
+		queue[i].isEnabled = queue[i+1].isEnabled;
+	}
 
-	int order = queue[0];
-
-		for(int i = 0; i < 8; i++){
-		queue[i] = queue[i + 1];
-		}
-	
-		queue[9] = 0;
-
-
-	return order; 
-
+		queue[10].isEnabled = 0;
 }
 
 
-void updateQueue(){
-	for(int i = 0; i < 9; i++){
-		if(BUTTONS[i]){
-			for(int j = 0; j < 9; j++){        //GÅR GJENNOM ARRAY BUTTONS, DERSOM KNAPP TRYKKET INN SJEKKES KØEN FOR IDENTISKE ORDRE
-				if(i+1 == queue[j]){
-					break;
+void updateQueue(struct order *currentOrder){
+	static int antallOrdre = 0;
+	for(int direction = 0; direction < 3; direction++){
+		for(int floorOrder = 0; floorOrder < 4; floorOrder++){
+			if (BUTTONS[(direction*4) + floorOrder]){
+				for(int i = 0; i < 10; i++){
+					if ((queue[i].direction == direction && queue[i].floor == floorOrder && queue[i].isEnabled) || (currentOrder->direction == direction && currentOrder->floor == floorOrder && currentOrder->isEnabled == 1)){
+						break;
 					}
-				else if(queue[j] == 0){
-					queue[j] = i+1;
+					else if (!(queue[i].isEnabled)){
+						queue[i].direction = direction;
+						queue[i].floor = floorOrder;
+						queue[i].isEnabled = 1;
+						antallOrdre++;
+						printf("antall ordre er nå: %d \n", antallOrdre);
+						break;
 					}
 				}
 			}
+		}
 	}
 }
+
+

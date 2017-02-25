@@ -1,7 +1,7 @@
 #include <time.h>
 
 
-static int timestamp;
+int timestamp;
 
 void startTimer();
 int timeOut();
