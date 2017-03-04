@@ -78,8 +78,7 @@ int main() {
                 }
                 break;
             case SERVICE:
-                BUTTONS[(8+currentFloor)] = 0;
-                BUTTONS[(4*currentOrder.direction)+currentFloor] = 0;
+                clearOrdersOnCurrentFloor(currentFloor);
                 pollAndUpdateButtons();
                 updateQueue(&currentOrder);
                 elev_set_door_open_lamp(1);

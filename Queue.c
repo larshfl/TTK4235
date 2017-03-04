@@ -3,7 +3,11 @@
 void clearQueue(){
 	for (int i = 0; i < 10; i++){
 		queue[i].isEnabled = 0;
+		BUTTONS[i] = 0;
 	}
+	BUTTONS[10] = 0;
+	BUTTONS[11] = 0;
+
 }
 
 
@@ -44,4 +48,22 @@ void updateQueue(struct order *currentOrder){
 	}
 }
 
+void clearOrdersOnCurrentFloor(int currentFloor){
+	for (int i = 0; i < 10; i++){
+		if ((queue[i].floor == currentFloor)&& (queue[i].isEnabled)){
+			for (int j = i; j < 9; j++){
+					queue[j].floor = queue[j+1].floor;
+					queue[j].direction = queue[j+1].direction;
+					queue[j].isEnabled = queue[j+1].isEnabled;
+			}
+			queue[9].floor = -5; //settes til en ugyldig verdi;
+			queue[9].direction = -5; //settes til en ugyldig verdi;
+			queue[9].isEnabled = 0;
+
+		}
+	}
+	BUTTONS[currentFloor] = 0;
+	BUTTONS[4 + currentFloor] = 0;
+	BUTTONS[8 + currentFloor] = 0;
+}
 
