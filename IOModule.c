@@ -77,9 +77,29 @@ void pollAndUpdateButtons(){
 		
 };
 
+void setMotorDirection(int *currentFloor, struct order *currentOrder){
+	if (*currentFloor > currentOrder->floor){
+		direction = 1;
+		elev_set_motor_direction(DIRN_DOWN);
+	}
+	else if (*currentFloor < currentOrder->floor){
+		direction = 0;
+		elev_set_motor_direction(DIRN_UP);
+	}
+	else if ((elev_get_floor_sensor_signal() == -1) && (*currentFloor == currentOrder->floor)){
+		if (direction == 1){
+			elev_set_motor_direction(DIRN_UP);
+			direction = 0;
+		}
+		else if (direction == 0){
+			elev_set_motor_direction(DIRN_DOWN);
+		}
+	}
+	else{
+		elev_set_motor_direction(DIRN_STOP);
+	}
 
-
-
+}
 
 
 

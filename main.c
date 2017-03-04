@@ -40,6 +40,7 @@ int main() {
     while(1){
           switch(state){
             case IDLE:
+                elev_set_door_open_lamp(0);
                 pollAndUpdateButtons();
                 updateQueue(&currentOrder);
                 fetchOrder(&currentOrder);
@@ -54,53 +55,46 @@ int main() {
 
 
             case MOVING:
-                if (elev_get_stop_signal()){
-                    state = STOP;
+                setMotorDirection(&currentFloor, &currentOrder);
+                while(elev_get_floor_sensor_signal() != currentOrder.floor){
+                    if (elev_get_stop_signal()){
+                        state = STOP;
+                        break;
+                        }
+                    pollAndUpdateButtons();
+                    updateQueue(&currentOrder);
+                    pollAndSetFloor(&currentFloor);
                 }
-                else if (!(currentOrder.isEnabled)){
-                    state = IDLE;
-                }
-                pollAndUpdateButtons();
-                updateQueue(&currentOrder);
-                pollAndSetFloor(&currentFloor);
-                if (currentFloor > currentOrder.floor && currentOrder.isEnabled){
-                    elev_set_motor_direction(DIRN_DOWN);
-                }
-                else if (currentFloor < currentOrder.floor && currentOrder.isEnabled){
-                    elev_set_motor_direction(DIRN_UP);
-                }
-                else{
+                if (state != STOP){
                     printf("RIKTIG ETASJE\n");
-                    currentOrder.isEnabled = 0;
-                    elev_set_motor_direction(DIRN_STOP);
                     state = SERVICE;
-                    startTimer();
                 }
                 break;
             case SERVICE:
-                clearOrdersOnCurrentFloor(currentFloor);
-                pollAndUpdateButtons();
-                updateQueue(&currentOrder);
+                elev_set_motor_direction(DIRN_STOP);
                 elev_set_door_open_lamp(1);
-                if(timeOut() && !(elev_get_stop_signal())){
-                    //exit(1);
-                    printf("TIMEOUT\n");
-                    elev_set_door_open_lamp(0);
-                    state = IDLE;
+                startTimer();
+                while(!(timeOut())){
+                    clearOrdersOnCurrentFloor(currentFloor);
+                    pollAndUpdateButtons();
+                    updateQueue(&currentOrder);
+                    if(elev_get_stop_signal()){
+                        printf("STOPP\n");
+                        state = STOP;
+                        break;
+                        }
                 }
-                else if(elev_get_stop_signal()){
-                    clearQueue();
-                    currentOrder.isEnabled = 0;
-                    startTimer();
+                if (state != STOP){
+                    state = IDLE;
                 }
                 break;
             case STOP:
                 elev_set_motor_direction(DIRN_STOP);
                 clearQueue();
+                pollAndUpdateButtons();
                 currentOrder.isEnabled = 0;
                 if(!(elev_get_floor_sensor_signal() == -1)){
                     state = SERVICE;
-                    startTimer();
                 }
                 else if(!(elev_get_stop_signal())){
                     state = IDLE;
