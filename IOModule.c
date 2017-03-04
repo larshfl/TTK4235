@@ -58,20 +58,39 @@ void pollAndUpdateButtons(){
 	
 		
 		//SET LIGHTS
-
-		elev_set_button_lamp(BUTTON_CALL_UP, 0, BUTTONS[0]);
-		elev_set_button_lamp(BUTTON_CALL_UP, 1, BUTTONS[1]);
-		elev_set_button_lamp(BUTTON_CALL_UP, 2, BUTTONS[2]);
+		if (elev_get_stop_signal()){
+			elev_set_button_lamp(BUTTON_CALL_UP, 0, 0);
+			elev_set_button_lamp(BUTTON_CALL_UP, 1, 0);
+			elev_set_button_lamp(BUTTON_CALL_UP, 2, 0);
 
 		
-		elev_set_button_lamp(BUTTON_CALL_DOWN, 1, BUTTONS[5]);
-		elev_set_button_lamp(BUTTON_CALL_DOWN, 2, BUTTONS[6]);
-		elev_set_button_lamp(BUTTON_CALL_DOWN, 3, BUTTONS[7]);
+			elev_set_button_lamp(BUTTON_CALL_DOWN, 1, 0);
+			elev_set_button_lamp(BUTTON_CALL_DOWN, 2, 0);
+			elev_set_button_lamp(BUTTON_CALL_DOWN, 3, 0);
 
-		elev_set_button_lamp(BUTTON_COMMAND, 0, BUTTONS[8]);
-		elev_set_button_lamp(BUTTON_COMMAND, 1, BUTTONS[9]);
-		elev_set_button_lamp(BUTTON_COMMAND, 2, BUTTONS[10]);
-		elev_set_button_lamp(BUTTON_COMMAND, 3, BUTTONS[11]);
+			elev_set_button_lamp(BUTTON_COMMAND, 0, 0);
+			elev_set_button_lamp(BUTTON_COMMAND, 1, 0);
+			elev_set_button_lamp(BUTTON_COMMAND, 2, 0);
+			elev_set_button_lamp(BUTTON_COMMAND, 3, 0);
+			elev_set_stop_lamp(1);
+		}
+		else{
+			elev_set_button_lamp(BUTTON_CALL_UP, 0, BUTTONS[0]);
+			elev_set_button_lamp(BUTTON_CALL_UP, 1, BUTTONS[1]);
+			elev_set_button_lamp(BUTTON_CALL_UP, 2, BUTTONS[2]);
+
+		
+			elev_set_button_lamp(BUTTON_CALL_DOWN, 1, BUTTONS[5]);
+			elev_set_button_lamp(BUTTON_CALL_DOWN, 2, BUTTONS[6]);
+			elev_set_button_lamp(BUTTON_CALL_DOWN, 3, BUTTONS[7]);
+
+			elev_set_button_lamp(BUTTON_COMMAND, 0, BUTTONS[8]);
+			elev_set_button_lamp(BUTTON_COMMAND, 1, BUTTONS[9]);
+			elev_set_button_lamp(BUTTON_COMMAND, 2, BUTTONS[10]);
+			elev_set_button_lamp(BUTTON_COMMAND, 3, BUTTONS[11]);
+
+			elev_set_stop_lamp(0);
+		}
 		
 		
 		
@@ -101,6 +120,12 @@ void setMotorDirection(int *currentFloor, struct order *currentOrder){
 
 }
 
+int getDirection(){
+	return direction;
+}
+void setDirection(int dir){
+	direction = dir;
+}
 
 
 

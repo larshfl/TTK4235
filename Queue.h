@@ -9,4 +9,5 @@ void updateQueue(struct order *currentOrder);
 void clearQueue();
 void fetchOrder(struct order *currentOrder);
 void clearOrdersOnCurrentFloor(int currentFloor);
+int temporaryOrdersExists(int *currentFloor, int direction);
  	

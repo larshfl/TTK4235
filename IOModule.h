@@ -8,3 +8,5 @@ static int floorLights[1];
 void pollAndSetFloor(int *currentFloor);
 void pollAndUpdateButtons();
 void setMotorDirection (int *currentFloor, struct order *currentOrder);
+int getDirection();
+void setDirection(int dir);

@@ -67,3 +67,11 @@ void clearOrdersOnCurrentFloor(int currentFloor){
 	BUTTONS[8 + currentFloor] = 0;
 }
 
+int temporaryOrdersExists(int *currentFloor, int direction){
+	for (int i = 0; i < 10; i++){
+		if ((queue[i].floor == *currentFloor) && ((queue[i].direction == direction) || queue[i].direction == 2) && queue[i].isEnabled){
+			return 1;
+		}
+	}
+	return 0;
+}

@@ -43,7 +43,9 @@ int main() {
                 elev_set_door_open_lamp(0);
                 pollAndUpdateButtons();
                 updateQueue(&currentOrder);
-                fetchOrder(&currentOrder);
+                if (!(currentOrder.isEnabled)){
+                    fetchOrder(&currentOrder);
+                }
                 if(currentOrder.isEnabled){
                     printf("Moving\n");
                     state = MOVING;
@@ -64,6 +66,10 @@ int main() {
                     pollAndUpdateButtons();
                     updateQueue(&currentOrder);
                     pollAndSetFloor(&currentFloor);
+                    if ((temporaryOrdersExists(&currentFloor, getDirection())) && (elev_get_floor_sensor_signal() != -1)){
+                        state = SERVICE;
+                        break;
+                    }
                 }
                 if (state != STOP){
                     printf("RIKTIG ETASJE\n");
@@ -72,6 +78,8 @@ int main() {
                 break;
             case SERVICE:
                 elev_set_motor_direction(DIRN_STOP);
+                pollAndSetFloor(&currentFloor);
+                setDirection(-1);
                 elev_set_door_open_lamp(1);
                 startTimer();
                 while(!(timeOut())){
@@ -84,12 +92,16 @@ int main() {
                         break;
                         }
                 }
+                if(currentFloor == currentOrder.floor){
+                    currentOrder.isEnabled = 0;
+                }
                 if (state != STOP){
                     state = IDLE;
                 }
                 break;
             case STOP:
                 elev_set_motor_direction(DIRN_STOP);
+                elev_set_stop_lamp(1);
                 clearQueue();
                 pollAndUpdateButtons();
                 currentOrder.isEnabled = 0;
@@ -98,6 +110,7 @@ int main() {
                 }
                 else if(!(elev_get_stop_signal())){
                     state = IDLE;
+                    elev_set_stop_lamp(0);
                 }
                 break;
             default:
