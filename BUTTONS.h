@@ -4,6 +4,6 @@ extern int BUTTONS[12];
 
 struct order {
 	int floor;
-	int direction; // 0 = up, 1 = down, 2 = command!
+	int buttonType; // 0 = up, 1 = down, 2 = command!
 	int isEnabled;
 };

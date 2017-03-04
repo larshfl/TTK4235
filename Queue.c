@@ -12,34 +12,30 @@ void clearQueue(){
 
 
 void fetchOrder(struct order *currentOrder){
-	currentOrder->direction = queue[0].direction;
+	currentOrder->buttonType = queue[0].buttonType;
 	currentOrder->floor = queue[0].floor;
 	currentOrder->isEnabled = queue[0].isEnabled;
 	for (int i = 0; i < 9; i++){
-		queue[i].direction = queue[i+1].direction;
-		queue[i].floor = queue[i+1].floor;
-		queue[i].isEnabled = queue[i+1].isEnabled;
+		queue[i] = queue[i+1];
 	}
-
 		queue[10].isEnabled = 0;
 }
 
 
 void updateQueue(struct order *currentOrder){
 	static int antallOrdre = 0;
-	for(int direction = 0; direction < 3; direction++){
+	for(int buttonType = 0; buttonType < 3; buttonType++){
 		for(int floorOrder = 0; floorOrder < 4; floorOrder++){
-			if (BUTTONS[(direction*4) + floorOrder]){
+			if (BUTTONS[(buttonType*4) + floorOrder]){
 				for(int i = 0; i < 10; i++){
-					if ((queue[i].direction == direction && queue[i].floor == floorOrder && queue[i].isEnabled) || (currentOrder->direction == direction && currentOrder->floor == floorOrder && currentOrder->isEnabled == 1)){
+					if (alreadyExists(currentOrder, buttonType, floorOrder, i)){
 						break;
 					}
 					else if (!(queue[i].isEnabled)){
-						queue[i].direction = direction;
+						queue[i].buttonType = buttonType;
 						queue[i].floor = floorOrder;
 						queue[i].isEnabled = 1;
 						antallOrdre++;
-						printf("antall ordre er nå: %d \n", antallOrdre);
 						break;
 					}
 				}
@@ -48,16 +44,24 @@ void updateQueue(struct order *currentOrder){
 	}
 }
 
+int alreadyExists(struct order *currentOrder, int buttonType, int floorOrder, int queueNumber){
+	if ((queue[queueNumber].buttonType == buttonType && queue[queueNumber].floor == floorOrder && queue[queueNumber].isEnabled)){ //SJEKKER OM ORDREN LIGGER I KØEN
+		return 1;
+	}
+	else if ((currentOrder->buttonType == buttonType && currentOrder->floor == floorOrder && currentOrder->isEnabled == 1)){ // SJEKKER OM ORDREN ER UNDER BEHANDLING
+		return 1;
+	}
+	return 0;
+}
+
 void clearOrdersOnCurrentFloor(int currentFloor){
 	for (int i = 0; i < 10; i++){
 		if ((queue[i].floor == currentFloor)&& (queue[i].isEnabled)){
 			for (int j = i; j < 9; j++){
-					queue[j].floor = queue[j+1].floor;
-					queue[j].direction = queue[j+1].direction;
-					queue[j].isEnabled = queue[j+1].isEnabled;
+					queue[j] = queue[j+1];
 			}
 			queue[9].floor = -5; //settes til en ugyldig verdi;
-			queue[9].direction = -5; //settes til en ugyldig verdi;
+			queue[9].buttonType = -5; //settes til en ugyldig verdi;
 			queue[9].isEnabled = 0;
 
 		}
@@ -69,7 +73,7 @@ void clearOrdersOnCurrentFloor(int currentFloor){
 
 int temporaryOrdersExists(int *currentFloor, int direction){
 	for (int i = 0; i < 10; i++){
-		if ((queue[i].floor == *currentFloor) && ((queue[i].direction == direction) || queue[i].direction == 2) && queue[i].isEnabled){
+		if ((queue[i].floor == *currentFloor) && ((queue[i].buttonType == direction) || queue[i].buttonType == 2) && queue[i].isEnabled){
 			return 1;
 		}
 	}

@@ -21,7 +21,6 @@ stopp knapp fungerer ikke. Current ordre slettes ikke.
 
 
 
-
 int main() {
     // Initialize hardware
     if (!elev_init()) {
@@ -34,7 +33,6 @@ int main() {
     STATE state = IDLE;
     struct order currentOrder;
     initialize(&currentOrder);
-    printf("currentOrder = %d", currentOrder.isEnabled);
     int currentFloor;
     pollAndSetFloor(&currentFloor);
     while(1){
@@ -47,7 +45,6 @@ int main() {
                     fetchOrder(&currentOrder);
                 }
                 if(currentOrder.isEnabled){
-                    printf("Moving\n");
                     state = MOVING;
                 }
                 else if(elev_get_stop_signal()){
@@ -72,7 +69,6 @@ int main() {
                     }
                 }
                 if (state != STOP){
-                    printf("RIKTIG ETASJE\n");
                     state = SERVICE;
                 }
                 break;
@@ -87,7 +83,6 @@ int main() {
                     pollAndUpdateButtons();
                     updateQueue(&currentOrder);
                     if(elev_get_stop_signal()){
-                        printf("STOPP\n");
                         state = STOP;
                         break;
                         }
@@ -101,7 +96,6 @@ int main() {
                 break;
             case STOP:
                 elev_set_motor_direction(DIRN_STOP);
-                elev_set_stop_lamp(1);
                 clearQueue();
                 pollAndUpdateButtons();
                 currentOrder.isEnabled = 0;
@@ -110,7 +104,6 @@ int main() {
                 }
                 else if(!(elev_get_stop_signal())){
                     state = IDLE;
-                    elev_set_stop_lamp(0);
                 }
                 break;
             default:
@@ -118,43 +111,13 @@ int main() {
         }
 
     }
-    /*
-    elev_set_motor_direction(DIRN_UP);
-
-    while (1) {
-    
-    
-    
-    	pollAndUpdateButtons();
-    	
-    	pollAndSetFloor();
-        // Change direction when we reach top/bottom floor
-        if (elev_get_floor_sensor_signal() == N_FLOORS - 1) {
-			startTimer();
-			while(!timeOut()){
-				elev_set_motor_direction(DIRN_STOP);
-			}
-			while(elev_get_floor_sensor_signal() == N_FLOORS - 1){
-				elev_set_motor_direction(DIRN_DOWN);
-				}
-        } else if (elev_get_floor_sensor_signal() == 0) {
-            elev_set_motor_direction(DIRN_UP);
-        }
-
-        // Stop elevator and exit program if the stop button is pressed
-        if (elev_get_stop_signal()) {
-            elev_set_motor_direction(DIRN_STOP);
-            break;
-        }
-    }
-    */
     return 0;
 }
 
 void initialize(struct order *currentOrder){
     printf("INITIALISERER");
     currentOrder->isEnabled = 0;
-    currentOrder->direction = -1;
+    currentOrder->buttonType = -1;
     currentOrder->floor = -2;
     while (elev_get_floor_sensor_signal() == -1){
         elev_set_motor_direction(DIRN_DOWN);
