@@ -1,13 +1,5 @@
 #include "IOModule.h"
 
-void stopAtTop(){
-
-	if(elev_get_floor_sensor_signal() == 3){
-		elev_set_motor_direction(DIRN_STOP);
-	}
-};
-
-
 void pollAndSetFloor(int *currentFloor){
 
 	switch(elev_get_floor_sensor_signal()){
@@ -30,10 +22,12 @@ void pollAndSetFloor(int *currentFloor){
 			*currentFloor = 3;
 			elev_set_floor_indicator(3);
 			break;
+		default:
+			printf("FLOOR SENSOR BROKEN\n");
 	}
 };
 
-void pollAndUpdateButtons(){
+void pollAndUpdateButtonsAndLights(){
 
 		
 		//UP BUTTONS
@@ -112,6 +106,7 @@ void setMotorDirection(int *currentFloor, struct order *currentOrder){
 		}
 		else if (direction == 0){
 			elev_set_motor_direction(DIRN_DOWN);
+			direction = 1;
 		}
 	}
 	else{

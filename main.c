@@ -7,27 +7,12 @@ int BUTTONS[12] = {0};
 
 void initialize(struct order *currentOrder);
 
-
-/*
-stopp knapp fungerer ikke. Current ordre slettes ikke.
-
-
-
-
-
-*/
-
-
-
-
-
 int main() {
     // Initialize hardware
     if (!elev_init()) {
         printf("Unable to initialize elevator hardware!\n");
         return 1;
     }
-    printf("Press STOP button to stop elevator and exit program.\n");
     clearQueue();
     typedef enum {MOVING, IDLE, SERVICE, STOP} STATE;
     STATE state = IDLE;
@@ -39,7 +24,7 @@ int main() {
           switch(state){
             case IDLE:
                 elev_set_door_open_lamp(0);
-                pollAndUpdateButtons();
+                pollAndUpdateButtonsAndLights();
                 updateQueue(&currentOrder);
                 if (!(currentOrder.isEnabled)){
                     fetchOrder(&currentOrder);
@@ -60,7 +45,7 @@ int main() {
                         state = STOP;
                         break;
                         }
-                    pollAndUpdateButtons();
+                    pollAndUpdateButtonsAndLights();
                     updateQueue(&currentOrder);
                     pollAndSetFloor(&currentFloor);
                     if ((temporaryOrdersExists(&currentFloor, getDirection())) && (elev_get_floor_sensor_signal() != -1)){
@@ -72,6 +57,8 @@ int main() {
                     state = SERVICE;
                 }
                 break;
+
+
             case SERVICE:
                 elev_set_motor_direction(DIRN_STOP);
                 pollAndSetFloor(&currentFloor);
@@ -80,7 +67,7 @@ int main() {
                 startTimer();
                 while(!(timeOut())){
                     clearOrdersOnCurrentFloor(currentFloor);
-                    pollAndUpdateButtons();
+                    pollAndUpdateButtonsAndLights();
                     updateQueue(&currentOrder);
                     if(elev_get_stop_signal()){
                         state = STOP;
@@ -94,10 +81,12 @@ int main() {
                     state = IDLE;
                 }
                 break;
+
+
             case STOP:
                 elev_set_motor_direction(DIRN_STOP);
                 clearQueue();
-                pollAndUpdateButtons();
+                pollAndUpdateButtonsAndLights();
                 currentOrder.isEnabled = 0;
                 if(!(elev_get_floor_sensor_signal() == -1)){
                     state = SERVICE;
@@ -106,8 +95,10 @@ int main() {
                     state = IDLE;
                 }
                 break;
+
+                
             default:
-                printf("default\n");
+                printf("INVALID STATE!\n");
         }
 
     }
@@ -115,10 +106,9 @@ int main() {
 }
 
 void initialize(struct order *currentOrder){
-    printf("INITIALISERER");
     currentOrder->isEnabled = 0;
-    currentOrder->buttonType = -1;
-    currentOrder->floor = -2;
+    currentOrder->buttonType = -5;
+    currentOrder->floor = -5;
     while (elev_get_floor_sensor_signal() == -1){
         elev_set_motor_direction(DIRN_DOWN);
     }
