@@ -1,6 +1,6 @@
 #include "IOModule.h"
 
-void pollAndSetFloor(int *currentFloor){
+void pollFloorsAndSetLights(int *currentFloor){
 
 	switch(elev_get_floor_sensor_signal()){
 	

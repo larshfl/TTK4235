@@ -1,9 +1,8 @@
-
-
 #include "IOModule.h"
 #include "Timer.h"
 
-int BUTTONS[12] = {0};
+int BUTTONS[12] = {0}; //PRØV Å LEGG SOM ARRAY, SEND INN MED PEKER
+					   //INKLUDER IO I QUEUE, INKLUDER QUEUE I MAIN
 
 void initialize(struct order *currentOrder);
 
@@ -13,19 +12,19 @@ int main() {
         printf("Unable to initialize elevator hardware!\n");
         return 1;
     }
-    clearQueue();
+    clearQueueAndButtons();
     typedef enum {MOVING, IDLE, SERVICE, STOP} STATE;
     STATE state = IDLE;
     struct order currentOrder;
     initialize(&currentOrder);
     int currentFloor;
-    pollAndSetFloor(&currentFloor);
+    pollFloorsAndSetLights(&currentFloor);
     while(1){
           switch(state){
             case IDLE:
                 elev_set_door_open_lamp(0);
                 pollAndUpdateButtonsAndLights();
-                updateQueue(&currentOrder);
+                createOrdersAndUpdateQueue(&currentOrder);
                 if (!(currentOrder.isEnabled)){
                     fetchOrder(&currentOrder);
                 }
@@ -46,9 +45,9 @@ int main() {
                         break;
                         }
                     pollAndUpdateButtonsAndLights();
-                    updateQueue(&currentOrder);
-                    pollAndSetFloor(&currentFloor);
-                    if ((temporaryOrdersExists(&currentFloor, getDirection())) && (elev_get_floor_sensor_signal() != -1)){
+                    createOrdersAndUpdateQueue(&currentOrder);
+                    pollFloorsAndSetLights(&currentFloor);
+                    if ((ordersOnCurrentFloor(&currentFloor, getDirection())) && (elev_get_floor_sensor_signal() != -1)){
                         state = SERVICE;
                         break;
                     }
@@ -61,14 +60,14 @@ int main() {
 
             case SERVICE:
                 elev_set_motor_direction(DIRN_STOP);
-                pollAndSetFloor(&currentFloor);
+                pollFloorsAndSetLights(&currentFloor);
                 setDirection(-1);
                 elev_set_door_open_lamp(1);
                 startTimer();
                 while(!(timeOut())){
                     clearOrdersOnCurrentFloor(currentFloor);
                     pollAndUpdateButtonsAndLights();
-                    updateQueue(&currentOrder);
+                    createOrdersAndUpdateQueue(&currentOrder);
                     if(elev_get_stop_signal()){
                         state = STOP;
                         break;
@@ -85,18 +84,19 @@ int main() {
 
             case STOP:
                 elev_set_motor_direction(DIRN_STOP);
-                clearQueue();
+                clearQueueAndButtons();
                 pollAndUpdateButtonsAndLights();
                 currentOrder.isEnabled = 0;
                 if(!(elev_get_floor_sensor_signal() == -1)){
                     state = SERVICE;
                 }
+
                 else if(!(elev_get_stop_signal())){
                     state = IDLE;
                 }
                 break;
 
-                
+
             default:
                 printf("INVALID STATE!\n");
         }
