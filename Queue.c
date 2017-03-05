@@ -27,8 +27,6 @@ void createOrdersAndUpdateQueue(struct order *currentOrder){
 	for(int buttonType = 0; buttonType < 3; buttonType++){
 		for(int floor = 0; floor < 4; floor++){
 			addOrder(buttonType, floor, currentOrder);
-			// putt dette inn i en ny hjelpefunskjon, addOrders(int buttonType, int floor, order currentOrder)
-
 		}
 	}
 }
