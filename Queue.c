@@ -26,25 +26,12 @@ void fetchOrder(struct order *currentOrder){
 void createOrdersAndUpdateQueue(struct order *currentOrder){
 	for(int buttonType = 0; buttonType < 3; buttonType++){
 		for(int floor = 0; floor < 4; floor++){
-		
+			addOrder(buttonType, floor, currentOrder);
 			// putt dette inn i en ny hjelpefunskjon, addOrders(int buttonType, int floor, order currentOrder)
-			if (BUTTONS[(buttonType*4) + floor]){
-				for(int i = 0; i < 10; i++){
-					if (orderAlreadyExists(currentOrder, buttonType, floor, i)){
-						break;
-					}
-					else if (!(queue[i].isEnabled)){
-						queue[i].buttonType = buttonType;
-						queue[i].floor = floor;
-						queue[i].isEnabled = 1;
-						break;
-					}
-				}
-			}
+
 		}
 	}
 }
-
 int orderAlreadyExists(struct order *currentOrder, int buttonType, int floor, int queueNumber){
 	if ((queue[queueNumber].buttonType == buttonType && queue[queueNumber].floor == floor && queue[queueNumber].isEnabled)){ //SJEKKER OM ORDREN LIGGER I KØEN
 		return 1;
@@ -79,4 +66,20 @@ int ordersOnCurrentFloor(int *currentFloor, int direction){
 		}
 	}
 	return 0;
+}
+
+void addOrder(int buttonType, int floor, struct order *currentOrder){
+	if (BUTTONS[(buttonType*4) + floor]){
+		for(int i = 0; i < 10; i++){
+			if (orderAlreadyExists(currentOrder, buttonType, floor, i)){
+				break;
+			}
+			else if (!(queue[i].isEnabled)){
+				queue[i].buttonType = buttonType;
+				queue[i].floor = floor;
+				queue[i].isEnabled = 1;
+				break;
+				}
+			}
+		}
 }

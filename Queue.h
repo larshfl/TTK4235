@@ -23,3 +23,4 @@ void fetchOrder(struct order *currentOrder);
 void clearOrdersOnCurrentFloor(int currentFloor);
 int  ordersOnCurrentFloor(int *currentFloor, int direction);
 int orderAlreadyExists(struct order *currentOrder, int buttonType, int floorOrder, int queueNumber);
+void addOrder(int buttonType, int floor, struct order *currentOrder);
