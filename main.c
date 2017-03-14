@@ -4,8 +4,7 @@
 
 
 
-int BUTTONS[12] = {0}; //PRØV Å LEGG SOM ARRAY, SEND INN MED PEKER
-					   //INKLUDER IO I QUEUE, INKLUDER QUEUE I MAIN
+int BUTTONS[BUTTON_SIZE] = {0}; 
 
 
 void initialize(struct order *currentOrder);
@@ -111,8 +110,8 @@ int main() {
 
 void initialize(struct order *currentOrder){
     currentOrder->isEnabled = 0;
-    currentOrder->buttonType = -5;
-    currentOrder->floor = -5;
+    currentOrder->buttonType = -1;
+    currentOrder->floor = -1;
     while (elev_get_floor_sensor_signal() == -1){
         elev_set_motor_direction(DIRN_DOWN);
     }
