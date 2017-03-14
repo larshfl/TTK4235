@@ -9,18 +9,22 @@ void pollFloorsAndSetLights(int *currentFloor){
 		case 0:
 			*currentFloor = 0;
 			elev_set_floor_indicator(0);
+			previousDir = direction;
 			break;
 		case 1:
 			*currentFloor = 1;
 			elev_set_floor_indicator(1);
+			previousDir = direction;
 			break;
 		case 2:
 			*currentFloor = 2;
 			elev_set_floor_indicator(2);
+			previousDir = direction;
 			break;
 		case 3:
 			*currentFloor = 3;
 			elev_set_floor_indicator(3);
+			previousDir = direction;
 			break;
 		default:
 			printf("FLOOR SENSOR BROKEN\n");
@@ -29,96 +33,29 @@ void pollFloorsAndSetLights(int *currentFloor){
 
 void pollAndUpdateButtonsAndLights(){
 
+	for(int i = 0; i < BUTTON_TYPES; i++){
+		for(int j = 0; j < NUMBER_OF_FLOORS; j ++){
+			if (((i == 0) && (j == (NUMBER_OF_FLOORS - 1))) || ((i == 1) && (j == (0)))){ 
+				BUTTONS[j + i*NUMBER_OF_FLOORS] = 0; //NED I FØRSTE OG OPP I ØVERSTE ETASJE EKSISTERER IKKE;
+			}
+			else{
+				BUTTONS[j + i*NUMBER_OF_FLOORS] = (BUTTONS[j + i*NUMBER_OF_FLOORS] || elev_get_button_signal(i, j));
+				if(elev_get_stop_signal()){
+					elev_set_button_lamp(i, j, 0);
+				}
+				else{
+					elev_set_button_lamp(i, j, BUTTONS[j + i*NUMBER_OF_FLOORS]);
+				}
+			}
+		}
+	}
 		
-		//UP BUTTONS
-		BUTTONS[0] = (BUTTONS[0] || elev_get_button_signal(0, 0));
-		BUTTONS[1] = (BUTTONS[1] || elev_get_button_signal(0, 1));
-		BUTTONS[2] = (BUTTONS[2] || elev_get_button_signal(0, 2));
-		BUTTONS[3] = 0; //NO UP ON 3RD FLOOR
-		
-		//DOWN BUTTONS
-		BUTTONS[4] = 0; //NO DOWN ON GROUND FLOOR
-		BUTTONS[5] = (BUTTONS[5] || elev_get_button_signal(1, 1));
-		BUTTONS[6] = (BUTTONS[6] || elev_get_button_signal(1, 2));
-		BUTTONS[7] = (BUTTONS[7] || elev_get_button_signal(1, 3));
 
-		
-		//COMMAND BUTTONS
-		BUTTONS[8] = (BUTTONS[8] || elev_get_button_signal(2, 0));
-		BUTTONS[9] = (BUTTONS[9] || elev_get_button_signal(2, 1));
-		BUTTONS[10] = (BUTTONS[10] || elev_get_button_signal(2, 2));
-		BUTTONS[11] = (BUTTONS[11] || elev_get_button_signal(2, 3));
-		
 	
-		
-		//SET LIGHTS
-		if (elev_get_stop_signal()){
-			elev_set_button_lamp(BUTTON_CALL_UP, 0, 0);
-			elev_set_button_lamp(BUTTON_CALL_UP, 1, 0);
-			elev_set_button_lamp(BUTTON_CALL_UP, 2, 0);
-
-		
-			elev_set_button_lamp(BUTTON_CALL_DOWN, 1, 0);
-			elev_set_button_lamp(BUTTON_CALL_DOWN, 2, 0);
-			elev_set_button_lamp(BUTTON_CALL_DOWN, 3, 0);
-
-			elev_set_button_lamp(BUTTON_COMMAND, 0, 0);
-			elev_set_button_lamp(BUTTON_COMMAND, 1, 0);
-			elev_set_button_lamp(BUTTON_COMMAND, 2, 0);
-			elev_set_button_lamp(BUTTON_COMMAND, 3, 0);
-			elev_set_stop_lamp(1);
-		}
-		else{
-			elev_set_button_lamp(BUTTON_CALL_UP, 0, BUTTONS[0]);
-			elev_set_button_lamp(BUTTON_CALL_UP, 1, BUTTONS[1]);
-			elev_set_button_lamp(BUTTON_CALL_UP, 2, BUTTONS[2]);
-
-		
-			elev_set_button_lamp(BUTTON_CALL_DOWN, 1, BUTTONS[5]);
-			elev_set_button_lamp(BUTTON_CALL_DOWN, 2, BUTTONS[6]);
-			elev_set_button_lamp(BUTTON_CALL_DOWN, 3, BUTTONS[7]);
-
-			elev_set_button_lamp(BUTTON_COMMAND, 0, BUTTONS[8]);
-			elev_set_button_lamp(BUTTON_COMMAND, 1, BUTTONS[9]);
-			elev_set_button_lamp(BUTTON_COMMAND, 2, BUTTONS[10]);
-			elev_set_button_lamp(BUTTON_COMMAND, 3, BUTTONS[11]);
-
-			elev_set_stop_lamp(0);
-		}
-		
-		
-		
 };
 
 void setMotorDirection(int *currentFloor, struct order *currentOrder){
 	
-/*
-if (*currentFloor > currentOrder->floor){
-		direction = 1;
-		elev_set_motor_direction(DIRN_DOWN);
-	}
-	else if (*currentFloor < currentOrder->floor){
-		direction = 0;
-		elev_set_motor_direction(DIRN_UP);
-	}
-	else if ((elev_get_floor_sensor_signal() == -1) && (*currentFloor == currentOrder->floor)){
-		if (direction == 1){
-			elev_set_motor_direction(DIRN_UP);
-			direction = 0;
-		}
-		else if (direction == 0){
-			elev_set_motor_direction(DIRN_DOWN);
-			direction = 1;
-		}
-	}
-	else{
-		elev_set_motor_direction(DIRN_STOP);
-	}
-
-*/
-
-
-
 
 	if(elev_get_floor_sensor_signal() != -1){
         if(*currentFloor < currentOrder->floor){
@@ -132,24 +69,22 @@ if (*currentFloor > currentOrder->floor){
         }
     else{
         if(currentOrder->floor > *currentFloor){
-            printf("YOLO2");
             elev_set_motor_direction(DIRN_UP);
-            direction = 0;
+           	direction = 0;
         }
-        else if (currentOrder->floor < *currentFloor){
-            printf("yolo\n");
-            elev_set_motor_direction(DIRN_DOWN);
-            direction = 1;
-           }
-        else{
-           if (previousDir == 1){
+       	else if (currentOrder->floor < *currentFloor){
+           	elev_set_motor_direction(DIRN_DOWN);
+           	direction = 1;
+        }
+       	else{
+         	if (previousDir == 1){
                 elev_set_motor_direction(DIRN_UP);
                 direction = 0;
                 }
-           else{
-                elev_set_motor_direction(DIRN_DOWN);
-                direction = 1;
-               }
+           	else{
+               	elev_set_motor_direction(DIRN_DOWN);
+               	direction = 1;
+             	}
         }
     }    
 

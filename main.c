@@ -1,8 +1,12 @@
 #include "IOModule.h"
 #include "Timer.h"
 
+
+
+
 int BUTTONS[12] = {0}; //PRØV Å LEGG SOM ARRAY, SEND INN MED PEKER
 					   //INKLUDER IO I QUEUE, INKLUDER QUEUE I MAIN
+
 
 void initialize(struct order *currentOrder);
 

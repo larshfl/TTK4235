@@ -2,14 +2,12 @@
 #include "Queue.h"
 #include "elev.h"
 
-int previousDir;
+int previousDir; //RETNING I DET VI FORLOT FORRIGE ETASJE, BENYTTES MTP. STOPPKNAPP
 
-static int direction;//direction husker hvilken retning heisen kjørte sist, benyttes mhp stoppknapp
+int direction;
 
-void pollFloorsAndSetLights(int *currentFloor); // pollFloorsAndSetLights
+void pollFloorsAndSetLights(int *currentFloor);
 void pollAndUpdateButtonsAndLights();
 void setMotorDirection (int *currentFloor, struct order *currentOrder);
-
-// hjelpefunkjsoner for variabelen direction. 
 int getDirection();
 void setDirection(int dir); 

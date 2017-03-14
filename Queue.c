@@ -1,12 +1,12 @@
 #include "Queue.h"
 
 void clearQueueAndButtons(){
-	for (int i = 0; i < 10; i++){
+	for (int i = 0; i < QUEUE_SIZE; i++){
 		queue[i].isEnabled = 0;
 		BUTTONS[i] = 0;
 	}
-	BUTTONS[10] = 0;
-	BUTTONS[11] = 0;
+	BUTTONS[BUTTON_SIZE - 2] = 0;
+	BUTTONS[BUTTON_SIZE - 1] = 0;
 
 }
 
@@ -15,17 +15,17 @@ void fetchOrder(struct order *currentOrder){
 	currentOrder->buttonType = queue[0].buttonType;
 	currentOrder->floor = queue[0].floor;
 	currentOrder->isEnabled = queue[0].isEnabled;
-	for (int i = 0; i < 9; i++){
+	for (int i = 0; i < (QUEUE_SIZE - 1); i++){
 		queue[i] = queue[i+1];
 	}
-		queue[10].isEnabled = 0;
+		queue[QUEUE_SIZE - 1].isEnabled = 0;
 }
 
 
 
 void createOrdersAndUpdateQueue(struct order *currentOrder){
-	for(int buttonType = 0; buttonType < 3; buttonType++){
-		for(int floor = 0; floor < 4; floor++){
+	for(int buttonType = 0; buttonType < BUTTON_TYPES; buttonType++){
+		for(int floor = 0; floor < NUMBER_OF_FLOORS; floor++){
 			addOrder(buttonType, floor, currentOrder);
 		}
 	}
@@ -41,24 +41,24 @@ int orderAlreadyExists(struct order *currentOrder, int buttonType, int floor, in
 }
 
 void clearOrdersOnCurrentFloor(int currentFloor){
-	for (int i = 0; i < 10; i++){
+	for (int i = 0; i < QUEUE_SIZE; i++){
 		if ((queue[i].floor == currentFloor)&& (queue[i].isEnabled)){
-			for (int j = i; j < 9; j++){
+			for (int j = i; j < (QUEUE_SIZE - 1); j++){
 					queue[j] = queue[j+1];
 			}
-			queue[9].floor = -5; //settes til en ugyldig verdi;
-			queue[9].buttonType = -5; //settes til en ugyldig verdi;
-			queue[9].isEnabled = 0;
+			queue[QUEUE_SIZE - 1].floor = -1;
+			queue[QUEUE_SIZE - 1].buttonType = -1;
+			queue[QUEUE_SIZE - 1].isEnabled = 0;
 
 		}
 	}
-	BUTTONS[currentFloor] = 0;
-	BUTTONS[4 + currentFloor] = 0;
-	BUTTONS[8 + currentFloor] = 0;
+	for (int i = 0; i < BUTTON_TYPES; i++){
+		BUTTONS[NUMBER_OF_FLOORS * i + currentFloor] = 0;
+	}
 }
 
 int ordersOnCurrentFloor(int *currentFloor, int direction){
-	for (int i = 0; i < 10; i++){
+	for (int i = 0; i < QUEUE_SIZE; i++){
 		if ((queue[i].floor == *currentFloor) && ((queue[i].buttonType == direction) || queue[i].buttonType == 2) && queue[i].isEnabled){
 			return 1;
 		}
@@ -67,8 +67,8 @@ int ordersOnCurrentFloor(int *currentFloor, int direction){
 }
 
 void addOrder(int buttonType, int floor, struct order *currentOrder){
-	if (BUTTONS[(buttonType*4) + floor]){
-		for(int i = 0; i < 10; i++){
+	if (BUTTONS[(buttonType * NUMBER_OF_FLOORS) + floor]){
+		for(int i = 0; i < QUEUE_SIZE; i++){
 			if (orderAlreadyExists(currentOrder, buttonType, floor, i)){
 				break;
 			}
